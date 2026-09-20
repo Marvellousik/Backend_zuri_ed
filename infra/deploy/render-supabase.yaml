@@ -1,0 +1,337 @@
+# Zuri - Render.com Blueprint (Supabase PostgreSQL Version)
+# 
+# INSTRUCTIONS:
+# 1. Replace YOUR_PASSWORD and YOUR_PROJECT below with your actual Supabase credentials
+# 2. Push this file to your GitHub repo root
+# 3. In Render dashboard: New -> Blueprint -> Connect repo
+# 4. Set your secrets (GEMINI_API_KEY, etc.) in Render dashboard after deploy
+#
+# This version uses Supabase for PostgreSQL (has pgvector) + Render for everything else
+
+services:
+  # ===========================================================================
+  # PUBLIC: API Gateway (the only service exposed to the internet)
+  # ===========================================================================
+  - type: web
+    name: zuri-gateway
+    runtime: docker
+    rootDir: .
+    dockerfilePath: ./services/gateway/Dockerfile
+    dockerContext: .
+    plan: starter
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: ENVIRONMENT
+        value: production
+      - key: LOG_LEVEL
+        value: info
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: zuri-redis
+          property: connectionString
+      - key: RATE_LIMIT_RPM
+        value: 100
+      - key: AI_RATE_LIMIT_RPM
+        value: 20
+      - key: AI_DAILY_QUOTA
+        value: 50
+      - key: CIRCUIT_BREAKER_THRESHOLD
+        value: 3
+      - key: CIRCUIT_BREAKER_TIMEOUT
+        value: 60s
+      - key: ALLOWED_ORIGINS
+        value: https://zuri.vercel.app,https://app.zuri.app
+      - key: USER_SERVICE_URL
+        fromService:
+          type: pserv
+          name: zuri-user-service
+          property: hostport
+      - key: CONTENT_SERVICE_URL
+        fromService:
+          type: pserv
+          name: zuri-content-service
+          property: hostport
+      - key: ANALYTICS_SERVICE_URL
+        fromService:
+          type: pserv
+          name: zuri-analytics-service
+          property: hostport
+      - key: NOTIFICATION_SERVICE_URL
+        fromService:
+          type: pserv
+          name: zuri-notification-service
+          property: hostport
+      - key: SYNC_SERVICE_URL
+        fromService:
+          type: pserv
+          name: zuri-sync-service
+          property: hostport
+      - key: ACADEMIC_SERVICE_URL
+        fromService:
+          type: pserv
+          name: zuri-academic-service
+          property: hostport
+      - key: AI_SERVICE_URL
+        fromService:
+          type: pserv
+          name: zuri-ai-service
+          property: hostport
+      - key: AI_SERVICE_TIMEOUT
+        value: 120s
+      - key: INTERNAL_API_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        value: postgresql://postgres:YOUR_PASSWORD@db.YOUR_PROJECT.supabase.co:5432/postgres
+    healthCheckPath: /health
+
+  # ===========================================================================
+  # PRIVATE: Core Go Services (only reachable through Gateway)
+  # ===========================================================================
+  - type: pserv
+    name: zuri-user-service
+    runtime: docker
+    rootDir: .
+    dockerfilePath: ./services/user/Dockerfile
+    dockerContext: .
+    plan: starter
+    envVars:
+      - key: PORT
+        value: 8081
+      - key: DATABASE_URL
+        value: postgresql://postgres:YOUR_PASSWORD@db.YOUR_PROJECT.supabase.co:5432/postgres
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: zuri-redis
+          property: hostport
+      - key: PRIVATE_KEY_ENCRYPTION_KEY
+        generateValue: true
+      - key: BCRYPT_COST
+        value: 12
+      - key: ACCESS_TOKEN_TTL
+        value: 15m
+      - key: REFRESH_TOKEN_TTL
+        value: 720h
+      - key: BYPASS_EMAIL_VERIFICATION
+        value: "false"
+      - key: INTERNAL_API_KEY
+        fromService:
+          type: web
+          name: zuri-gateway
+          envVarKey: INTERNAL_API_KEY
+    disk:
+      name: jwt-keys
+      mountPath: /app/keys
+      sizeGB: 1
+
+  - type: pserv
+    name: zuri-content-service
+    runtime: docker
+    rootDir: .
+    dockerfilePath: ./services/content/Dockerfile
+    dockerContext: .
+    plan: starter
+    envVars:
+      - key: PORT
+        value: 8082
+      - key: DATABASE_URL
+        value: postgresql://postgres:YOUR_PASSWORD@db.YOUR_PROJECT.supabase.co:5432/postgres
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: zuri-redis
+          property: hostport
+      - key: MINIO_ENDPOINT
+        fromService:
+          type: pserv
+          name: zuri-minio
+          property: host
+      - key: MINIO_ACCESS_KEY
+        sync: false
+      - key: MINIO_SECRET_KEY
+        generateValue: true
+      - key: MINIO_BUCKET
+        value: zuri-materials
+      - key: INGESTION_SERVICE_URL
+        fromService:
+          type: pserv
+          name: zuri-ingestion-service
+          property: hostport
+      - key: INTERNAL_API_KEY
+        fromService:
+          type: web
+          name: zuri-gateway
+          envVarKey: INTERNAL_API_KEY
+
+  - type: pserv
+    name: zuri-analytics-service
+    runtime: docker
+    rootDir: .
+    dockerfilePath: ./services/analytics/Dockerfile
+    dockerContext: .
+    plan: starter
+    envVars:
+      - key: PORT
+        value: 8083
+      - key: DATABASE_URL
+        value: postgresql://postgres:YOUR_PASSWORD@db.YOUR_PROJECT.supabase.co:5432/postgres
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: zuri-redis
+          property: hostport
+      - key: INTERNAL_API_KEY
+        fromService:
+          type: web
+          name: zuri-gateway
+          envVarKey: INTERNAL_API_KEY
+
+  - type: pserv
+    name: zuri-notification-service
+    runtime: docker
+    rootDir: .
+    dockerfilePath: ./services/notification-service/Dockerfile
+    dockerContext: .
+    plan: starter
+    envVars:
+      - key: PORT
+        value: 8084
+      - key: DATABASE_URL
+        value: postgresql://postgres:YOUR_PASSWORD@db.YOUR_PROJECT.supabase.co:5432/postgres
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USERNAME
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: SMTP_FROM
+        value: noreply@zuri.app
+      - key: FIREBASE_SERVICE_ACCOUNT_PATH
+        value: /etc/secrets/firebase-service-account.json
+      - key: INTERNAL_API_KEY
+        fromService:
+          type: web
+          name: zuri-gateway
+          envVarKey: INTERNAL_API_KEY
+    disk:
+      name: secrets
+      mountPath: /etc/secrets
+      sizeGB: 1
+
+  - type: pserv
+    name: zuri-sync-service
+    runtime: docker
+    rootDir: .
+    dockerfilePath: ./services/sync-service/Dockerfile
+    dockerContext: .
+    plan: starter
+    envVars:
+      - key: PORT
+        value: 8085
+      - key: DATABASE_URL
+        value: postgresql://postgres:YOUR_PASSWORD@db.YOUR_PROJECT.supabase.co:5432/postgres
+      - key: INTERNAL_API_KEY
+        fromService:
+          type: web
+          name: zuri-gateway
+          envVarKey: INTERNAL_API_KEY
+
+  # ===========================================================================
+  # PRIVATE: Python AI Services
+  # ===========================================================================
+  # ---------------------------------------------------------------------------
+  # Academic Context & Intelligence Service (Private)
+  # ---------------------------------------------------------------------------
+  - type: pserv
+    name: zuri-academic-service
+    runtime: docker
+    rootDir: .
+    dockerfilePath: ./academic_service/Dockerfile
+    dockerContext: .
+    plan: starter
+    envVars:
+      - key: PORT
+        value: 8086
+      - key: DATABASE_URL
+        value: postgresql://postgres:YOUR_PASSWORD@db.YOUR_PROJECT.supabase.co:5432/postgres
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: zuri-redis
+          property: hostport
+      - key: AI_SERVICE_URL
+        fromService:
+          type: pserv
+          name: zuri-ai-service
+          property: hostport
+      - key: NOTIFICATION_SERVICE_URL
+        fromService:
+          type: pserv
+          name: zuri-notification-service
+          property: hostport
+      - key: INTERNAL_API_KEY
+        fromService:
+          type: web
+          name: zuri-gateway
+          envVarKey: INTERNAL_API_KEY
+
+  # ---------------------------------------------------------------------------
+  # Unified AI Microservice & Gateway Pipeline (Private)
+  # ---------------------------------------------------------------------------
+  - type: pserv
+    name: zuri-ai-service
+    runtime: docker
+    rootDir: .
+    dockerfilePath: ./ai_service/Dockerfile
+    dockerContext: .
+    plan: standard
+    envVars:
+      - key: PORT
+        value: 5005
+      - key: DATABASE_URL
+        value: postgresql://postgres:YOUR_PASSWORD@db.YOUR_PROJECT.supabase.co:5432/postgres
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: zuri-redis
+          property: hostport
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: COHERE_API_KEY
+        sync: false
+      - key: INTERNAL_API_KEY
+        fromService:
+          type: web
+          name: zuri-gateway
+          envVarKey: INTERNAL_API_KEY
+
+  # ===========================================================================
+  # PRIVATE: MinIO File Storage
+  # ===========================================================================
+  - type: pserv
+    name: zuri-minio
+    runtime: docker
+    image: minio/minio:latest
+    plan: starter
+    dockerCommand: server /data --console-address :9001
+    envVars:
+      - key: MINIO_ROOT_USER
+        sync: false
+      - key: MINIO_ROOT_PASSWORD
+        generateValue: true
+    disk:
+      name: minio-data
+      mountPath: /data
+      sizeGB: 10
+
+  # ===========================================================================
+  # MANAGED: Redis (Render native - free tier)
+  # ===========================================================================
+  - type: redis
+    name: zuri-redis
+    plan: free
+    ipAllowList: []

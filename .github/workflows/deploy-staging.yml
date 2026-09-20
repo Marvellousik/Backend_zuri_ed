@@ -1,0 +1,34 @@
+name: Deploy to Staging
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Build, verify, then deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.STAGING_HOST }}
+          username: ${{ secrets.STAGING_USER }}
+          key: ${{ secrets.STAGING_SSH_KEY }}
+          script: |
+            set -e
+            cd /opt/lexiassist/backend
+            git pull origin main
+            cd infra
+            echo "Building all images..."
+            docker compose -f docker-compose.yml -f docker-compose.staging.yml build
+            echo "Build succeeded. Deploying..."
+            docker compose -f docker-compose.yml -f docker-compose.staging.yml up -d --force-recreate
+            docker image prune -f
+            docker builder prune -f
+
+      - name: Health check
+        run: |
+          sleep 30
+          curl --fail https://staging.lexiassist.app/health

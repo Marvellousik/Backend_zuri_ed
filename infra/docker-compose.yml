@@ -1,0 +1,358 @@
+services:
+  # PostgreSQL Database
+  postgres:
+    image: pgvector/pgvector:pg15
+    container_name: zuri-postgres
+    environment:
+      POSTGRES_USER: zuri
+      POSTGRES_PASSWORD: zuri_secret
+      POSTGRES_DB: zuri
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U zuri"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - zuri-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: zuri-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - zuri-network
+
+  # User Service
+  user-service:
+    build:
+      context: ..
+      dockerfile: services/user/Dockerfile
+    container_name: zuri-user-service
+    environment:
+      - SERVICE_NAME=user-service
+      - ENVIRONMENT=development
+      - LOG_LEVEL=info
+      - PORT=8081
+      - DATABASE_URL=postgresql://zuri:zuri_secret@postgres:5432/zuri?sslmode=disable
+      - REDIS_URL=redis:6379
+      - PRIVATE_KEY_ENCRYPTION_KEY=${PRIVATE_KEY_ENCRYPTION_KEY:-your-secure-master-key-min-32-chars-long}
+      - BCRYPT_COST=12
+      - ACCESS_TOKEN_TTL=15m
+      - REFRESH_TOKEN_TTL=720h
+      - NOTIFICATION_SERVICE_URL=http://notification-service:8084
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY:-dev-internal-key}
+    # Internal service - isolated within zuri-network, routed via Gateway (:8080)
+    # ports:
+    #   - "8081:8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8081/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    networks:
+      - zuri-network
+    restart: unless-stopped
+
+  # Content Service
+  content-service:
+    build:
+      context: ..
+      dockerfile: services/content/Dockerfile
+    image: zuri/content-service:latest
+    container_name: zuri-content-service
+    environment:
+      - SERVICE_NAME=content-service
+      - ENVIRONMENT=development
+      - LOG_LEVEL=info
+      - PORT=8082
+      - DATABASE_URL=postgresql://zuri:zuri_secret@postgres:5432/zuri?sslmode=disable
+      - REDIS_URL=redis:6379
+      - MINIO_ENDPOINT=minio:9000
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin_secret
+      - MINIO_BUCKET=zuri-materials
+      - MINIO_PUBLIC_URL=${MINIO_PUBLIC_URL:-}
+      - INGESTION_SERVICE_URL=http://ingestion-service:5002
+      - REDIS_URL=redis:6379
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY:-dev-internal-key}
+    # Internal service - isolated within zuri-network, routed via Gateway (:8080)
+    # ports:
+    #   - "8082:8082"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8082/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    networks:
+      - zuri-network
+    restart: unless-stopped
+
+  # Analytics Service
+  analytics-service:
+    build:
+      context: ..
+      dockerfile: services/analytics/Dockerfile
+    image: zuri/analytics-service:latest
+    container_name: zuri-analytics-service
+    environment:
+      - SERVICE_NAME=analytics-service
+      - ENVIRONMENT=development
+      - LOG_LEVEL=info
+      - PORT=8083
+      - DATABASE_URL=postgresql://zuri:zuri_secret@postgres:5432/zuri?sslmode=disable
+      - REDIS_URL=redis:6379
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY:-dev-internal-key}
+    # Internal service - isolated within zuri-network, routed via Gateway (:8080)
+    # ports:
+    #   - "8083:8083"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8083/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    networks:
+      - zuri-network
+    restart: unless-stopped
+
+  # Notification Service
+  notification-service:
+    build:
+      context: ..
+      dockerfile: services/notification-service/Dockerfile
+    image: zuri/notification-service:latest
+    container_name: zuri-notification-service
+    environment:
+      - SERVICE_NAME=notification-service
+      - ENVIRONMENT=development
+      - LOG_LEVEL=info
+      - PORT=8084
+      - DATABASE_URL=postgresql://zuri:zuri_secret@postgres:5432/zuri?sslmode=disable
+      - REDIS_URL=redis:6379
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY:-dev-internal-key}
+      # SMTP Configuration (optional - for email notifications)
+      - SMTP_HOST=${SMTP_HOST:-}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USERNAME=${SMTP_USERNAME:-}
+      - SMTP_PASSWORD=${SMTP_PASSWORD:-}
+      - SMTP_FROM=${SMTP_FROM:-notifications@zuri.app}
+      # Firebase Configuration (optional - for push notifications)
+      - FIREBASE_SERVICE_ACCOUNT_PATH=${FIREBASE_SERVICE_ACCOUNT_PATH:-}
+    # Internal service - isolated within zuri-network, routed via Gateway (:8080)
+    # ports:
+    #   - "8084:8084"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8084/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    networks:
+      - zuri-network
+    restart: unless-stopped
+
+  # Sync Service
+  sync-service:
+    build:
+      context: ..
+      dockerfile: services/sync-service/Dockerfile
+    container_name: zuri-sync-service
+    environment:
+      - SERVICE_NAME=sync-service
+      - ENVIRONMENT=development
+      - LOG_LEVEL=info
+      - PORT=8085
+      - DATABASE_URL=postgresql://zuri:zuri_secret@postgres:5432/zuri?sslmode=disable
+      - REDIS_URL=redis:6379
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY:-dev-internal-key}
+    # Internal service - isolated within zuri-network, routed via Gateway (:8080)
+    # ports:
+    #   - "8085:8085"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8085/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    networks:
+      - zuri-network
+    restart: unless-stopped
+
+  # Gateway Service
+  gateway:
+    build:
+      context: ..
+      dockerfile: services/gateway/Dockerfile
+    image: zuri/gateway:latest
+    container_name: zuri-gateway
+    environment:
+      - SERVICE_NAME=gateway
+      - ENVIRONMENT=development
+      - LOG_LEVEL=info
+      - PORT=8080
+      - ALLOWED_ORIGINS=*
+      - USER_SERVICE_URL=http://user-service:8081
+      - CONTENT_SERVICE_URL=http://content-service:8082
+      - ANALYTICS_SERVICE_URL=http://analytics-service:8083
+      - NOTIFICATION_SERVICE_URL=http://notification-service:8084
+      - SYNC_SERVICE_URL=http://sync-service:8085
+      - ACADEMIC_SERVICE_URL=http://academic-service:8086
+      - AI_SERVICE_URL=http://ai-service:5005
+      - AI_SERVICE_TIMEOUT=${AI_SERVICE_TIMEOUT:-120s}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
+      - REDIS_URL=redis:6379
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY:-dev-internal-key}
+      - JWT_SECRET=${JWT_SECRET:-your-jwt-secret-key-here}
+      - AI_DAILY_QUOTA=${AI_DAILY_QUOTA:-0}
+    ports:
+      - "8080:8080"
+    depends_on:
+      - user-service
+      - content-service
+      - analytics-service
+      - notification-service
+      - sync-service
+      - academic-service
+      - ai-service
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    networks:
+      - zuri-network
+    restart: unless-stopped
+
+  # MinIO Object Storage (for Content Service)
+  minio:
+    image: minio/minio:latest
+    container_name: zuri-minio
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin_secret
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    networks:
+      - zuri-network
+
+  # Academic Context & Intelligence Service (FastAPI — Port 8086)
+  academic-service:
+    build:
+      context: ..
+      dockerfile: academic_service/Dockerfile
+    image: zuri/academic-service:latest
+    container_name: zuri-academic-service
+    environment:
+      - PORT=8086
+      - DATABASE_URL=postgresql://zuri:zuri_secret@postgres:5432/zuri
+      - REDIS_URL=redis:6379
+      - AI_SERVICE_URL=http://ai-service:5005
+      - NOTIFICATION_SERVICE_URL=http://notification-service:8084
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY:-dev-internal-key}
+      - LOG_LEVEL=info
+    # Internal service - isolated within zuri-network, routed via Gateway (:8080)
+    # ports:
+    #   - "8086:8086"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8086/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    networks:
+      - zuri-network
+    restart: unless-stopped
+
+  # Zuri AI Microservice & 13-Stage Gateway Pipeline (FastAPI — Port 5005)
+  ai-service:
+    build:
+      context: ..
+      dockerfile: ai_service/Dockerfile
+    image: zuri/ai-service:latest
+    container_name: zuri-ai-service
+    environment:
+      - PORT=5005
+      - DATABASE_URL=postgresql://zuri:zuri_secret@postgres:5432/zuri
+      - REDIS_URL=redis:6379
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - COHERE_API_KEY=${COHERE_API_KEY:-}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY:-dev-internal-key}
+      - LOG_LEVEL=info
+    # Internal service - isolated within zuri-network, routed via Gateway (:8080)
+    # ports:
+    #   - "5005:5005"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5005/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    networks:
+      - zuri-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:
+
+networks:
+  zuri-network:
+    driver: bridge
+

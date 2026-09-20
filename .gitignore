@@ -1,0 +1,57 @@
+# ── Environment & Secrets ──────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+!infra/.env.example
+infra/.env
+*.pem
+*.key
+
+# ── Go ─────────────────────────────────────────────────────────────────────
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+services/gateway/gateway.exe
+
+# ── Python ─────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+*.egg-info/
+
+# ── Docker ─────────────────────────────────────────────────────────────────
+docker-compose.override.yml
+
+# ── IDE / Editor ───────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.kiro/
+
+# ── OS ─────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ── Data / Logs ────────────────────────────────────────────────────────────
+*.log
+*.pdf
+zuri-ai-main/mm1.pdf
+zuri-ai-main/mm1_ocr.pdf
+zuri-ai-main/reading_assistant/temp_audio/
+zuri-Python Services/services/audio/temp_audio/*
+!zuri-Python Services/services/audio/temp_audio/.gitkeep
+zuri-Python Services/services/ingestion/*.json
+zuri-Python Services/services/ingestion/extracted_text.txt
+login.json
+.zuri/
+tmp_*
+test_*.txt

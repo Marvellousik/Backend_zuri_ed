@@ -1,0 +1,28 @@
+CSC 301: Advanced Algorithms — Dynamic Programming Lecture Notes
+University: Veritas University, Abuja
+Module: Dynamic Programming, Memoization, and Optimal Substructure
+
+1. Overview
+Dynamic Programming is an algorithmic technique for solving optimization problems by breaking them down into simpler overlapping subproblems. Instead of solving identical subproblems repeatedly, Dynamic Programming solves each subproblem once and stores the result in memory for constant time lookup.
+
+2. Core Criteria for Dynamic Programming
+A problem can be efficiently solved with Dynamic Programming if and only if it exhibits two fundamental properties:
+Property 1: Overlapping Subproblems. The recursive space contains identical subproblems evaluated repeatedly. For example, in computing the nth Fibonacci number, calculating Fib(n-1) and Fib(n-2) both independently compute Fib(n-3).
+Property 2: Optimal Substructure. The optimal solution to the global problem incorporates optimal solutions to its constituent subproblems.
+
+3. Top-Down Memoization vs Bottom-Up Tabulation
+Top-Down Memoization preserves the intuitive recursive structure of the problem while introducing a memoization cache such as a hash map or array. When a subproblem is called, the algorithm first checks if the result exists in the cache.
+Bottom-Up Tabulation eliminates recursion completely. The algorithm initializes base cases in a table and iteratively computes subsequent states in topological order until reaching the target state.
+
+4. 0/1 Knapsack Problem Formulation
+In the 0/1 Knapsack problem, we are given n items with weights w_1 to w_n and values v_1 to v_n, and a maximum knapsack capacity W. For each item i, we can either choose to include it or exclude it.
+The recurrence relation is:
+DP(i, w) equals DP(i-1, w) if weight w_i exceeds w.
+Otherwise, DP(i, w) equals the maximum of DP(i-1, w) and DP(i-1, w - w_i) plus v_i.
+The time complexity is O(n times W), which is pseudo-polynomial in nature.
+
+5. Key Vocabulary and Definitions
+- Memoization: Caching the output of deterministic function calls to avoid recomputation.
+- Optimal Substructure: Property where an optimal solution is composed of optimal solutions to subproblems.
+- Overlapping Subproblems: Repeated evaluation of identical subproblems in recursion trees.
+- State Transition: The mathematical formula expressing a state in terms of previously computed states.

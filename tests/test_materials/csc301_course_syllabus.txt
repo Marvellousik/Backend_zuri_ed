@@ -1,0 +1,21 @@
+COURSE SYLLABUS — VERITAS UNIVERSITY
+Course: CSC 301 (Advanced Algorithms and Data Structures)
+Credit Units: 3.0 | Semester: 2025/2026 First Semester
+Department: Computer Science | Faculty: Natural and Applied Sciences
+
+LECTURE TIMETABLE AND SCHEDULE:
+- Lecture Day: Monday
+- Lecture Time: 10:00 AM - 12:00 PM
+- Official Venue: Lecture Theatre 2 (LT2)
+- Lab Practical: Wednesday 02:00 PM - 04:00 PM in Software Lab 1
+
+SYLLABUS MODULES AND PREREQUISITE GRAPH:
+Module 1: Asymptotic Analysis and Recurrence Relations (Master Theorem, Substitution Method)
+Module 2: Divide and Conquer (MergeSort, QuickSort, Closest Pair of Points)
+Module 3: Dynamic Programming (Memoization, Tabulation, 0/1 Knapsack, LCS)
+Module 4: Greedy Algorithms (Huffman Coding, Fractional Knapsack, Kruskal's MST)
+Module 5: Graph Theory (Breadth-First Search, Depth-First Search, Dijkstra, Bellman-Ford)
+
+COURSE PREREQUISITES:
+- Prerequisite 1: CSC 201 (Data Structures and Algorithms I)
+- Prerequisite 2: MTH 201 (Discrete Mathematics)

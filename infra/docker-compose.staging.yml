@@ -1,0 +1,15 @@
+services:
+  gateway:
+    environment:
+      - ALLOWED_ORIGINS=https://staging.zuri.app,https://study.staging.zuri.app
+      - ENVIRONMENT=staging
+
+  ai-orchestrator:
+    environment:
+      - ALLOWED_ORIGINS=https://staging.zuri.app,https://study.staging.zuri.app
+      - ENVIRONMENT=staging
+
+  evaluation-service:
+    environment:
+      - ALLOWED_ORIGINS=https://staging.zuri.app,https://study.staging.zuri.app
+      - ENVIRONMENT=staging

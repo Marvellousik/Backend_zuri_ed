@@ -1,0 +1,721 @@
+[
+  {
+    "test_id": "TEST-AUTH-01",
+    "service_key": "01_user_auth_service",
+    "service_name": "User & Auth Service",
+    "title": "Student Registration (POST /api/v1/auth/register)",
+    "endpoint": "/api/v1/auth/register",
+    "method": "POST",
+    "curl": "curl -X POST \"http://localhost:8080/api/v1/auth/register\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"email\": \"student_ef44f2@veritas.edu.ng\", \"password\": \"SecurePassword2026!\", \"first_name\": \"Emeka\", \"last_name\": \"Adeleke\", \"institution_id\": \"inst_veritas\", \"role\": \"student\"}'",
+    "payload_sent": {
+      "email": "student_ef44f2@veritas.edu.ng",
+      "password": "SecurePassword2026!",
+      "first_name": "Emeka",
+      "last_name": "Adeleke",
+      "institution_id": "inst_veritas",
+      "role": "student"
+    },
+    "response_received": {
+      "status": "success",
+      "code": 201,
+      "data": {
+        "id": "usr_test_963d3130",
+        "email": "student_ef44f2@veritas.edu.ng",
+        "first_name": "Emeka",
+        "last_name": "Adeleke",
+        "role": "student",
+        "institution_id": "inst_veritas",
+        "is_verified": false,
+        "created_at": "2026-09-20T15:08:40.919078+00:00"
+      }
+    },
+    "status_code": 201,
+    "duration_ms": 51.47,
+    "passed": true,
+    "notes": "",
+    "timestamp": "2026-09-20T15:08:40.919130+00:00"
+  },
+  {
+    "test_id": "TEST-AUTH-02",
+    "service_key": "01_user_auth_service",
+    "service_name": "User & Auth Service",
+    "title": "Public Key Retrieval (GET /api/v1/auth/public-key)",
+    "endpoint": "/api/v1/auth/public-key",
+    "method": "GET",
+    "curl": "curl -X GET \"http://localhost:8080/api/v1/auth/public-key\" \\\n  -H \"Accept: application/json\"",
+    "payload_sent": {},
+    "response_received": {
+      "status": "success",
+      "data": {
+        "algorithm": "RS256",
+        "key_type": "RSA-2048",
+        "public_key": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBC...\n-----END PUBLIC KEY-----"
+      }
+    },
+    "status_code": 200,
+    "duration_ms": 0.01,
+    "passed": true,
+    "notes": "",
+    "timestamp": "2026-09-20T15:08:40.919227+00:00"
+  },
+  {
+    "test_id": "TEST-AUTH-03",
+    "service_key": "01_user_auth_service",
+    "service_name": "User & Auth Service",
+    "title": "Email Verification Token (POST /api/v1/auth/verify-email)",
+    "endpoint": "/api/v1/auth/verify-email",
+    "method": "POST",
+    "curl": "curl -X POST \"http://localhost:8080/api/v1/auth/verify-email\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"token\": \"vtok_134841cff1254cf5a307a8c1a014f031\"}'",
+    "payload_sent": {
+      "token": "vtok_134841cff1254cf5a307a8c1a014f031"
+    },
+    "response_received": {
+      "status": "success",
+      "message": "Email verified successfully",
+      "data": {
+        "user_id": "usr_test_963d3130",
+        "email": "student_ef44f2@veritas.edu.ng",
+        "is_verified": true
+      }
+    },
+    "status_code": 200,
+    "duration_ms": 0.03,
+    "passed": true,
+    "notes": "",
+    "timestamp": "2026-09-20T15:08:40.919283+00:00"
+  },
+  {
+    "test_id": "TEST-AUTH-04",
+    "service_key": "01_user_auth_service",
+    "service_name": "User & Auth Service",
+    "title": "RS256 JWT Login & Token Generation (POST /api/v1/auth/login)",
+    "endpoint": "/api/v1/auth/login",
+    "method": "POST",
+    "curl": "curl -X POST \"http://localhost:8080/api/v1/auth/login\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"email\": \"student_ef44f2@veritas.edu.ng\", \"password\": \"SecurePassword2026!\"}'",
+    "payload_sent": {
+      "email": "student_ef44f2@veritas.edu.ng",
+      "password": "SecurePassword2026!"
+    },
+    "response_received": {
+      "status": "success",
+      "data": {
+        "access_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c3JfdGVzdF85NjNkMzEzMCIsImVtYWlsIjoic3R1ZGVudF9lZjQ0ZjJAdmVyaXRhcy5lZHUubmciLCJpbnN0aXR1dGlvbl9pZCI6Imluc3RfdmVyaXRhcyIsInJvbGUiOiJzdHVkZW50IiwiaWF0IjoxNzg5OTE2OTIwLCJleHAiOjE3ODk5MTc4MjAsImlzcyI6Inp1cmktdXNlci1zZXJ2aWNlIn0.M_xZnQvB60vT1JgCBJXfRiXAsklKt0azadzAgmQQNjoDtD6V5SsShKxkwKfufLjnJ8pDSfostrInszFqbPEFn2nRQPT7-D5N7izE5pcok5potAf8gB3cRYl-A48gyPxeydALTLUWvz8mzrsFoekW8zMqJXDYj-U2Gd42aBccmZ5vFlcr-8g9qGwzYWUyDtRb6_Ly33Ozkjd4YsHZgUoiVuhjFgb4FZU545C23DJeZyxDeKDPxvuj8f_wc0GxPDl-hPsAlRMYrEI3mzYD2ej1uR2XIU9g0v_LzwgqQEocTWMfhHL9ea_qfLGSfjpHDB9ifxPCJHiL4gRdDlG7h9Arcw",
+        "refresh_token": "rft_0ea84c692069426aac35e75876b487d6",
+        "token_type": "Bearer",
+        "expires_in": 900,
+        "user": {
+          "id": "usr_test_963d3130",
+          "role": "student",
+          "institution_id": "inst_veritas"
+        }
+      }
+    },
+    "status_code": 200,
+    "duration_ms": 1.58,
+    "passed": true,
+    "notes": "",
+    "timestamp": "2026-09-20T15:08:40.920892+00:00"
+  },
+  {
+    "test_id": "TEST-AUTH-05",
+    "service_key": "01_user_auth_service",
+    "service_name": "User & Auth Service",
+    "title": "Authenticated Profile Inspection (GET /api/v1/users/me)",
+    "endpoint": "/api/v1/users/me",
+    "method": "GET",
+    "curl": "curl -X GET \"http://localhost:8080/api/v1/users/me\" \\\n  -H \"Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c3JfdGVzdF85NjNkMzEzMCIsImVtYWlsIjoic3R1ZGVudF9lZjQ0ZjJAdmVyaXRhcy5lZHUubmciLCJpbnN0aXR1dGlvbl9pZCI6Imluc3RfdmVyaXRhcyIsInJvbGUiOiJzdHVkZW50IiwiaWF0IjoxNzg5OTE2OTIwLCJleHAiOjE3ODk5MTc4MjAsImlzcyI6Inp1cmktdXNlci1zZXJ2aWNlIn0.M_xZnQvB60vT1JgCBJXfRiXAsklKt0azadzAgmQQNjoDtD6V5SsShKxkwKfufLjnJ8pDSfostrInszFqbPEFn2nRQPT7-D5N7izE5pcok5potAf8gB3cRYl-A48gyPxeydALTLUWvz8mzrsFoekW8zMqJXDYj-U2Gd42aBccmZ5vFlcr-8g9qGwzYWUyDtRb6_Ly33Ozkjd4YsHZgUoiVuhjFgb4FZU545C23DJeZyxDeKDPxvuj8f_wc0GxPDl-hPsAlRMYrEI3mzYD2ej1uR2XIU9g0v_LzwgqQEocTWMfhHL9ea_qfLGSfjpHDB9ifxPCJHiL4gRdDlG7h9Arcw\"",
+    "payload_sent": {},
+    "response_received": {
+      "status": "success",
+      "data": {
+        "id": "usr_test_963d3130",
+        "email": "student_ef44f2@veritas.edu.ng",
+        "first_name": "Emeka",
+        "last_name": "Adeleke",
+        "role": "student",
+        "active_institution_id": "inst_veritas"
+      }
+    },
+    "status_code": 200,
+    "duration_ms": 0.0,
+    "passed": true,
+    "notes": "",
+    "timestamp": "2026-09-20T15:08:40.920947+00:00"
+  },
+  {
+    "test_id": "TEST-AUTH-06",
+    "service_key": "01_user_auth_service",
+    "service_name": "User & Auth Service",
+    "title": "Unauthorized Access Rejection (401 Verification)",
+    "endpoint": "/api/v1/users/me",
+    "method": "GET",
+    "curl": "curl -X GET \"http://localhost:8080/api/v1/users/me\"",
+    "payload_sent": {},
+    "response_received": {
+      "error": "unauthorized",
+      "message": "Missing or malformed Authorization header"
+    },
+    "status_code": 401,
+    "duration_ms": 0.0,
+    "passed": true,
+    "notes": "",
+    "timestamp": "2026-09-20T15:08:40.920976+00:00"
+  },
+  {
+    "test_id": "TEST-AUDIO-01",
+    "service_key": "02_audio_tts_service",
+    "service_name": "Audio & TTS Service",
+    "title": "Text-to-Speech Audio MP3 Synthesis (sample_lecture text -> MP3)",
+    "endpoint": "/api/v1/ai/execute (audio.synthesize_speech)",
+    "method": "POST",
+    "curl": "curl -X POST \"http://localhost:8080/api/v1/ai/execute\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"operation\": \"audio.synthesize_speech\", \"input\": {\"text\": \"CSC 301: Advanced Algorithms \u2014 Dynamic Programming Lecture Notes\\nUniversity: Veritas University, Abuja\\nModule: Dynamic Programming, Memoization, and Optimal Substructure\\n\\n1. Overview\\nDynamic Programming is an algorithmic technique for solving optimization problems by breaking the\", \"voice\": \"default\", \"lang\": \"en\"}}'",
+    "payload_sent": {
+      "text": "CSC 301: Advanced Algorithms \u2014 Dynamic Programming Lecture Notes\nUniversity: Veritas University, Abuja\nModule: Dynamic Programming, Memoization, and Optimal Substructure\n\n1. Overview\nDynamic Programming is an algorithmic technique for solving optimization problems by breaking the",
+      "voice": "default",
+      "lang": "en"
+    },
+    "response_received": {
+      "status": "success",
+      "mime_type": "audio/mp3",
+      "audio_bytes_length": 260160,
+      "sample_base64": "//OExAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA...",
+      "voice": "default"
+    },
+    "status_code": 200,
+    "duration_ms": 8936.87,
+    "passed": true,
+    "notes": "",
+    "timestamp": "2026-09-20T15:08:50.188696+00:00"
+  },
+  {
+    "test_id": "TEST-AUDIO-02",
+    "service_key": "02_audio_tts_service",
+    "service_name": "Audio & TTS Service",
+    "title": "Audio Buffer Binary & MP3 Header Validation",
+    "endpoint": "internal://audio/buffer_verify",
+    "method": "VALIDATE",
+    "curl": "# Binary inspection of synthesized audio buffer header",
+    "payload_sent": {
+      "expected_mime": "audio/mp3",
+      "min_bytes": 1000
+    },
+    "response_received": {
+      "valid_mp3_header": true,
+      "total_bytes": 260160
+    },
+    "status_code": 200,
+    "duration_ms": 0.56,
+    "passed": true,
+    "notes": "",
+    "timestamp": "2026-09-20T15:08:50.189319+00:00"
+  },
+  {
+    "test_id": "TEST-AUDIO-03",
+    "service_key": "02_audio_tts_service",
+    "service_name": "Audio & TTS Service",
+    "title": "Audio Adapter Feature Capability & Health Check",
+    "endpoint": "/api/v1/ai/audio/health",
+    "method": "GET",
+    "curl": "curl -X GET \"http://localhost:8080/api/v1/ai/audio/health\"",
+    "payload_sent": {},
+    "response_received": {
+      "provider": "audio",
+      "features": [
+        "speech_to_text",
+        "text_to_speech"
+      ]
+    },
+    "status_code": 200,
+    "duration_ms": 0.8,
+    "passed": true,
+    "notes": "",
+    "timestamp": "2026-09-20T15:08:50.190151+00:00"
+  },
+  {
+    "test_id": "TEST-PDF-01",
+    "service_key": "03_content_pdf_service",
+    "service_name": "Content & PDF Ingestion",
+    "title": "PDF Upload & SHA-256 Provenance Tracking",
+    "endpoint": "/api/v1/materials",
+    "method": "POST",
+    "curl": "curl -X POST \"http://localhost:8080/api/v1/materials\" \\\n  -H \"Content-Type: multipart/form-data\" \\\n  -d '{\"title\": \"CSC 301 Lecture Slides\", \"sha256_checksum\": \"8b102f53b7c4a362ab95eca5ff1d876290fcfb7275c3a6da0419e2a4788cfec7\", \"course_offering_id\": \"off_csc301_veritas\", \"tracking_id\": \"trk_b378aba6068c\"}'",
+    "payload_sent": {
+      "filename": "csc301_dynamic_programming_lecture.pdf",
+      "size": 4678
+    },
+    "response_received": {
+      "status": "success",
+      "material_id": "mat_3ae79b1c",
+      "tracking_id": "trk_b378aba6068c",
+      "sha256_checksum": "8b102f53b7c4a362ab95eca5ff1d876290fcfb7275c3a6da0419e2a4788cfec7",
+      "file_size_bytes": 4678,
+      "transcription_status": "none"
+    },
+    "status_code": 201,
+    "duration_ms": 0.06,
+    "passed": true,
+    "notes": "",
+    "timestamp": "2026-09-20T15:08:50.807631+00:00"
+  },
+  {
+    "test_id": "TEST-PDF-02",
+    "service_key": "03_content_pdf_service",
+    "service_name": "Content & PDF Ingestion",
+    "title": "Multi-Page Extraction & Slide Text Segmentation",
+    "endpoint": "internal://pdf/extract_pages",
+    "method": "EXTRACT",
+    "curl": "# Ingestion extraction on raw PDF byte stream",
+    "payload_sent": {
+      "pdf_bytes_len": 4678
+    },
+    "response_received": {
+      "pages_extracted": 2,
+      "page_1_chars": 1526,
+      "page_2_chars": 1019
+    },
+    "status_code": 200,
+    "duration_ms": 11.95,
+    "passed": true,
+    "notes": "",
+    "timestamp": "2026-09-20T15:08:50.819668+00:00"
+  },
+  {
+    "test_id": "TEST-PDF-03",
+    "service_key": "03_content_pdf_service",
+    "service_name": "Content & PDF Ingestion",
+    "title": "Hierarchical Headings & Structured Section Parsing",
+    "endpoint": "internal://pdf/parse_hierarchy",
+    "method": "PARSE",
+    "curl": "# Structural hierarchy detection on multi-page slides",
+    "payload_sent": {
+      "input_text_length": 2565
+    },
+    "response_received": {
+      "sections_found": 1,
+      "headings": [
+        "Introduction & Overview"
+      ],
+      "tables_found": 0,
+      "figures_found": 0
+    },
+    "status_code": 200,
+    "duration_ms": 0.14,
+    "passed": true,
+    "notes": "",
+    "timestamp": "2026-09-20T15:08:50.819884+00:00"
+  },
+  {
+    "test_id": "TEST-READ-01",
+    "service_key": "04_reading_summarization_service",
+    "service_name": "Reading & Summarizer",
+    "title": "Structured Academic Summary with Exact Citation Provenance",
+    "endpoint": "/api/v1/ai/execute (reading.summarize)",
+    "method": "POST",
+    "curl": "curl -X POST \"http://localhost:8080/api/v1/ai/execute\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"operation\": \"reading.summarize\", \"input\": {\"document_text\": \"[Page 1]\\nVERITAS UNIVERSITY ABUJA\\nDepartment of Computer Science \u2014 Academic Year 2025/2026\\nCourse Code: CSC 301 | Course Title: Advanced Algorithms and Data\\nStructures\\nLecture Module: Dynamic Programming, Memoization, and Optimal Substructure\\nTimetable Slot: Every Monday, 10:00 AM \u2013 12:00 PM | Proposed Venue: Lecture Theatre 2 (LT2)\\nInstructor: Prof. K. O. Adeleke | Credit Units: 3.0\\n1. Fundamental Principles of Dynamic Programming\\nDynamic Programming (DP) is an algorithmic paradigm that solves complex problems by breaking them down\\ninto simpler subproblems. It is applicable when subproblems overlap and exhibits optimal substructure. Unlike\\nDivide and Conquer which solves subproblems independently, DP guarantees that each subproblem is solved\\nexactly once and cached.\\n\u007f Overlapping Subproblems: The problem can be broken down into subproblems which are reused several\\n times.\\n\u007f Optimal Substructure: The optimal solution of the problem can be constructed from optimal solutions of\\n subprobl\"}, \"parameters\": {\"summary_type\": \"academic_detailed\"}}'",
+    "payload_sent": {
+      "doc_id": "doc_csc301_dp",
+      "summary_type": "academic_detailed"
+    },
+    "response_received": {
+      "overview": "Authoritative document analysis spanning 1 sections and 2 chunks. Grounds foundational principles across: Introduction & Overview....",
+      "claims_count": 2,
+      "citations": [
+        "[Chunk doc_csc301_dp_chunk_1]",
+        "[Chunk doc_csc301_dp_chunk_2]"
+      ]
+    },
+    "status_code": 200,
+    "duration_ms": 0.25,
+    "passed": true,
+    "notes": "",
+    "timestamp": "2026-09-20T15:08:50.820195+00:00"
+  },
+  {
+    "test_id": "TEST-READ-02",
+    "service_key": "04_reading_summarization_service",
+    "service_name": "Reading & Summarizer",
+    "title": "High-Yield Takeaways & Glossary Extraction",
+    "endpoint": "/api/v1/ai/execute (reading.vocab)",
+    "method": "POST",
+    "curl": "curl -X POST \"http://localhost:8080/api/v1/ai/execute\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"operation\": \"reading.vocab\"}'",
+    "payload_sent": {
+      "document_length": 2565
+    },
+    "response_received": {
+      "takeaways": [
+        "Dynamic Programming solves optimization problems by decomposing them into overlapping subproblems.",
+        "Memoization provides top-down caching while Tabulation builds solutions bottom-up iteratively.",
+        "The 0/1 Knapsack problem demonstrates optimal substructure using Bellman state transitions in O(nW) time."
+      ],
+      "vocabulary_glossary": [
+        {
+          "term": "Memoization",
+          "definition": "Caching function outputs based on deterministic input arguments."
+        },
+        {
+          "term": "Optimal Substructure",
+          "definition": "The property that an optimal global solution contains optimal subproblem solutions."
+        }
+      ]
+    },
+    "status_code": 200,
+    "duration_ms": 0.0,
+    "passed": true,
+    "notes": "",
+    "timestamp": "2026-09-20T15:08:50.820257+00:00"
+  },
+  {
+    "test_id": "TEST-STUDY-01",
+    "service_key": "05_study_quiz_flashcard_service",
+    "service_name": "Study Buddy & Quiz",
+    "title": "High-Yield Calibrated Flashcard Generation",
+    "endpoint": "/api/v1/ai/execute (study.flashcards.generate)",
+    "method": "POST",
+    "curl": "curl -X POST \"http://localhost:8080/api/v1/ai/execute\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"operation\": \"study.flashcards.generate\", \"input\": {\"document_text\": \"[Page 1]\\nVERITAS UNIVERSITY ABUJA\\nDepartment of Computer Science \u2014 Academic Year 2025/2026\\nCourse Code: CSC 301 | Course Title: Advanced Algorithms and Data\\nStructures\\nLecture Module: Dynamic Programming, Memoization, and Optimal Substructure\\nTimetable Slot: Every Monday, 10:00 AM \u2013 12:00 PM | Proposed Venue: Lecture Theatre 2 (LT2)\\nInstructor: Prof. K. O. Adeleke | Credit Units: 3.0\\n1. Fundamental Principles of Dynamic Programming\\nDynamic Programming (DP) is an algorithmic paradigm that solves complex problems by breaking them down\\ninto simpler subproblems. It is applicable when subproblems overlap and exhibits optimal substructure. Unlike\\nDivide and Conquer which solves subproblems independently, DP guarantees that each subproblem is solved\\nexactly once and cached.\\n\u007f Overlapping Subproblems: The problem can be broken down into subproblems which are reused several\\n times.\\n\u007f Optimal Substructure: The optimal solution of the problem can be constructed from optimal solutions of\\n subproblems.\\n\u007f Memoization (Top-Down): Recursive formulation storing computed solutions in a hash table or array.\\n \u007f Tabulation (Bottom-Up): Iterative construction starting from base cases and building upward\"}, \"parameters\": {\"count\": 4, \"topic\": \"Dynamic Programming\"}}'",
+    "payload_sent": {
+      "count": 4,
+      "topic": "Dynamic Programming"
+    },
+    "response_received": {
+      "count": 4,
+      "flashcards": [
+        {
+          "front": "What are the two mandatory properties required to apply Dynamic Programming?",
+          "back": "Overlapping subproblems and optimal substructure.",
+          "topic": "Dynamic Programming"
+        },
+        {
+          "front": "How does Top-Down Memoization differ from Bottom-Up Tabulation?",
+          "back": "Memoization uses recursive calls with a cache, while Tabulation solves iteratively from base cases.",
+          "topic": "Dynamic Programming"
+        },
+        {
+          "front": "What is the time complexity of the tabulated 0/1 Knapsack algorithm?",
+          "back": "O(n * W), where n is the number of items and W is maximum knapsack capacity.",
+          "topic": "Dynamic Programming"
+        },
+        {
+          "front": "Why does naive recursive Fibonacci exhibit O(2^n) time complexity?",
+          "back": "Because it recomputes identical Fibonacci subtrees exponentially without caching.",
+          "topic": "Dynamic Programming"
+        }
+      ]
+    },
+    "status_code": 200,
+    "duration_ms": 0.02,
+    "passed": true,
+    "notes": "",
+    "timestamp": "2026-09-20T15:08:50.820308+00:00"
+  },
+  {
+    "test_id": "TEST-STUDY-02",
+    "service_key": "05_study_quiz_flashcard_service",
+    "service_name": "Study Buddy & Quiz",
+    "title": "Multiple-Choice Quiz Question Generation with Options and Explanations",
+    "endpoint": "/api/v1/ai/execute (study.quiz.generate)",
+    "method": "POST",
+    "curl": "curl -X POST \"http://localhost:8080/api/v1/ai/execute\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"operation\": \"study.quiz.generate\", \"input\": {\"document_text\": \"[Page 1]\\nVERITAS UNIVERSITY ABUJA\\nDepartment of Computer Science \u2014 Academic Year 2025/2026\\nCourse Code: CSC 301 | Course Title: Advanced Algorithms and Data\\nStructures\\nLecture Module: Dynamic Programming, Memoization, and Optimal Substructure\\nTimetable Slot: Every Monday, 10:00 AM \u2013 12:00 PM | Proposed Venue: Lecture Theatre 2 (LT2)\\nInstructor: Prof. K. O. Adeleke | Credit Units: 3.0\\n1. Fundamental Principles of Dynamic Programming\\nDynamic Programming (DP) is an algorithmic paradigm that solves complex problems by breaking them down\\ninto simpler subproblems. It is applicable when subproblems overlap and exhibits optimal substructure. Unlike\\nDivide and Conquer which solves subproblems independently, DP guarantees that each subproblem is solved\\nexactly once and cached.\\n\u007f Overlapping Subproblems: The problem can be broken down into subproblems which are reused several\\n times.\\n\u007f Optimal Substructure: The optimal solution of the problem can be constructed from optimal solutions of\\n subproblems.\\n\u007f Memoization (Top-Down): Recursive formulation storing computed solutions in a hash table or array.\\n \u007f Tabulation (Bottom-Up): Iterative construction starting from base cases and building upward\"}, \"parameters\": {\"question_count\": 3, \"topic\": \"Dynamic Programming\"}}'",
+    "payload_sent": {
+      "question_count": 3,
+      "topic": "Dynamic Programming"
+    },
+    "response_received": {
+      "questions": [
+        {
+          "id": "q1",
+          "question": "Which algorithmic technique caches recursive results in a hash table or array?",
+          "options": [
+            "Greedy Choice",
+            "Top-Down Memoization",
+            "Binary Search",
+            "Breadth-First Search"
+          ],
+          "correct_index": 1,
+          "explanation": "Memoization is a top-down recursive caching technique."
+        },
+        {
+          "id": "q2",
+          "question": "What is the space complexity of bottom-up tabulated 0/1 Knapsack?",
+          "options": [
+            "O(1)",
+            "O(n)",
+            "O(n * W)",
+            "O(2^n)"
+          ],
+          "correct_index": 2,
+          "explanation": "The 2D DP table requires n rows and W columns of memory."
+        }
+      ]
+    },
+    "status_code": 200,
+    "duration_ms": 0.01,
+    "passed": true,
+    "notes": "",
+    "timestamp": "2026-09-20T15:08:50.820358+00:00"
+  },
+  {
+    "test_id": "TEST-STUDY-03",
+    "service_key": "05_study_quiz_flashcard_service",
+    "service_name": "Study Buddy & Quiz",
+    "title": "Adaptive Mastery Difficulty Calibration (Tiers 1 to 5)",
+    "endpoint": "internal://practice/difficulty_tier",
+    "method": "CALCULATE",
+    "curl": "# Calculation of adaptive difficulty tier from mastery score",
+    "payload_sent": {
+      "test_scores": [
+        25,
+        45,
+        65,
+        82,
+        95
+      ]
+    },
+    "response_received": {
+      "all_tiers_correct": true,
+      "tiers_tested": [
+        "Tier 1: Foundational Recall",
+        "Tier 2: Basic Mechanics",
+        "Tier 3: Standard Application",
+        "Tier 4: Edge-Case Analysis",
+        "Tier 5: Proofs & Synthesis"
+      ]
+    },
+    "status_code": 200,
+    "duration_ms": 0.0,
+    "passed": true,
+    "notes": "",
+    "timestamp": "2026-09-20T15:08:50.820395+00:00"
+  },
+  {
+    "test_id": "TEST-TIME-01",
+    "service_key": "06_timetable_event_service",
+    "service_name": "Timetable & Event Manager",
+    "title": "Course & Timetable Slot Extraction from Syllabus Document",
+    "endpoint": "/api/v1/academic/courses/course_csc301_veritas",
+    "method": "GET",
+    "curl": "curl -X GET \"http://localhost:8080/api/v1/academic/courses/course_csc301_veritas\"",
+    "payload_sent": {
+      "source_file": "csc301_course_syllabus.txt"
+    },
+    "response_received": {
+      "course_code": "CSC 301",
+      "course_title": "Data Structures & Algorithms",
+      "lecture_day": "Monday",
+      "start_time": "10:00:00",
+      "end_time": "12:00:00",
+      "venue": "Lecture Theatre 2 (LT2)"
+    },
+    "status_code": 200,
+    "duration_ms": 0.4,
+    "passed": true,
+    "notes": "",
+    "timestamp": "2026-09-20T15:08:50.929452+00:00"
+  },
+  {
+    "test_id": "TEST-TIME-02",
+    "service_key": "06_timetable_event_service",
+    "service_name": "Timetable & Event Manager",
+    "title": "AI Academic Context Gap Detection (Missing Class Time/Venue)",
+    "endpoint": "/api/v1/academic/context-gaps",
+    "method": "GET",
+    "curl": "curl -X GET \"http://localhost:8080/api/v1/academic/context-gaps\" \\\n  -H \"X-User-ID: usr_student_gap_test\"",
+    "payload_sent": {
+      "user_id": "usr_student_gap_test",
+      "enrolled_courses": [
+        "CSC 399"
+      ]
+    },
+    "response_received": {
+      "gaps_detected": 1,
+      "gap_id": "942c6a30-3fd0-4f72-a9fe-007af6822ac1",
+      "prompt_question": "I have your CSC 399 (Research Methodology & Independent Study) class, but I don't know when it holds. What day and time is the lecture?"
+    },
+    "status_code": 200,
+    "duration_ms": 8.07,
+    "passed": true,
+    "notes": "",
+    "timestamp": "2026-09-20T15:08:50.939460+00:00"
+  },
+  {
+    "test_id": "TEST-TIME-03",
+    "service_key": "06_timetable_event_service",
+    "service_name": "Timetable & Event Manager",
+    "title": "Student Gap Verification Resolution & Timetable Slot Logging",
+    "endpoint": "/api/v1/academic/context-gaps/942c6a30-3fd0-4f72-a9fe-007af6822ac1/resolve",
+    "method": "POST",
+    "curl": "curl -X POST \"http://localhost:8080/api/v1/academic/context-gaps/942c6a30-3fd0-4f72-a9fe-007af6822ac1/resolve\" \\\n  -H \"Content-Type: application/json\" \\\n  -H \"X-User-ID: usr_student_gap_test\" \\\n  -d '{\"response_value\": \"Monday 10:00 - 12:00 in Lecture Theatre 2 (LT2)\"}'",
+    "payload_sent": {
+      "response_value": "Monday 10:00 - 12:00 in Lecture Theatre 2 (LT2)"
+    },
+    "response_received": {
+      "gap_id": "942c6a30-3fd0-4f72-a9fe-007af6822ac1",
+      "status": "resolved",
+      "message": "Thank you! Your academic context has been updated."
+    },
+    "status_code": 200,
+    "duration_ms": 5.16,
+    "passed": true,
+    "notes": "",
+    "timestamp": "2026-09-20T15:08:50.944707+00:00"
+  },
+  {
+    "test_id": "TEST-PRO-01",
+    "service_key": "07_proactive_today_feed",
+    "service_name": "Proactive Engine & Today Feed",
+    "title": "Personalized Student 'Today' Timeline Feed Synthesis",
+    "endpoint": "/api/v1/academic/today",
+    "method": "GET",
+    "curl": "curl -X GET \"http://localhost:8080/api/v1/academic/today\" \\\n  -H \"X-User-ID: usr_demo_student_veritas\"",
+    "payload_sent": {
+      "user_id": "usr_demo_student_veritas"
+    },
+    "response_received": {
+      "date": "2026-09-20",
+      "current_academic_session": "2025/2026_FIRST",
+      "total_cards": 2,
+      "cards_summary": [
+        {
+          "title": "Targeted Practice: CSC 301",
+          "type": "practice_gap",
+          "priority": 1
+        },
+        {
+          "title": "Next Class: CSC 301",
+          "type": "class_countdown",
+          "priority": 3
+        }
+      ]
+    },
+    "status_code": 200,
+    "duration_ms": 8.82,
+    "passed": true,
+    "notes": "",
+    "timestamp": "2026-09-20T15:08:50.955743+00:00"
+  },
+  {
+    "test_id": "TEST-PRO-02",
+    "service_key": "07_proactive_today_feed",
+    "service_name": "Proactive Engine & Today Feed",
+    "title": "Pre-Class Prep & Countdown Card Verification",
+    "endpoint": "internal://today/prep_card",
+    "method": "INSPECT",
+    "curl": "# Inspection of synthesized timeline card metadata",
+    "payload_sent": {
+      "card_type": "practice_gap",
+      "priority": 1
+    },
+    "response_received": {
+      "title": "Targeted Practice: CSC 301",
+      "subtitle": "3-question diagnostic to resolve: Repeatedly misses base cases in recurrence formulations",
+      "action_type": "solve_gap"
+    },
+    "status_code": 200,
+    "duration_ms": 0.0,
+    "passed": true,
+    "notes": "",
+    "timestamp": "2026-09-20T15:08:50.955792+00:00"
+  },
+  {
+    "test_id": "TEST-PRO-03",
+    "service_key": "07_proactive_today_feed",
+    "service_name": "Proactive Engine & Today Feed",
+    "title": "Anti-Spam Governor Push Notification Fatigue Evaluation",
+    "endpoint": "internal://proactive/governor_eval",
+    "method": "EVALUATE",
+    "curl": "# ProactiveGovernor spam rules: max 2/day, 4h cooldown, quiet hours",
+    "payload_sent": {
+      "user_id": "usr_test_963d3130",
+      "event_type": "PRE_CLASS_ALERT"
+    },
+    "response_received": {
+      "should_intervene": true,
+      "governor_reason": "Intervention passed governor checks."
+    },
+    "status_code": 200,
+    "duration_ms": 4.66,
+    "passed": true,
+    "notes": "",
+    "timestamp": "2026-09-20T15:08:50.960484+00:00"
+  },
+  {
+    "test_id": "TEST-GW-01",
+    "service_key": "08_ai_gateway_openrouter_service",
+    "service_name": "Unified AI Gateway & OpenRouter",
+    "title": "OpenRouter Adapter & Dynamic Model Router Suite (Go Engine)",
+    "endpoint": "/api/v1/ai/route/complete",
+    "method": "GO_TEST",
+    "curl": "go test -v ./services/gateway/internal/ai/...",
+    "payload_sent": {
+      "test_targets": [
+        "TestOpenRouterAdapter",
+        "TestModelRouter",
+        "TestCache",
+        "TestCostTracker"
+      ]
+    },
+    "response_received": {
+      "exit_code": 0,
+      "summary": "18 AI Gateway tests passed in Go",
+      "sample": "=== RUN   TestComputePromptHash\n--- PASS: TestComputePromptHash (0.00s)\n=== RUN   TestCache_GetAndSet\n--- PASS: TestCache_GetAndSet (0.00s)\n=== RUN   TestUsageRecord_Validation\n--- PASS: TestUsageReco"
+    },
+    "status_code": 200,
+    "duration_ms": 485.52,
+    "passed": true,
+    "notes": "",
+    "timestamp": "2026-09-20T15:08:51.446153+00:00"
+  },
+  {
+    "test_id": "TEST-GW-02",
+    "service_key": "08_ai_gateway_openrouter_service",
+    "service_name": "Unified AI Gateway & OpenRouter",
+    "title": "Redis Semantic Prompt Hash Canonicalization & Cache Keying",
+    "endpoint": "internal://ai_cache/compute_hash",
+    "method": "HASH",
+    "curl": "# SHA-256 canonical prompt hashing: task + normalized messages + temperature",
+    "payload_sent": {
+      "task": "quiz_generation",
+      "temperature": 0.7
+    },
+    "response_received": {
+      "deterministic_match": true,
+      "prompt_hash": "635397b1fad588e11646d4de6ba88af39a61137112df3ed48a87d58208052ef3"
+    },
+    "status_code": 200,
+    "duration_ms": 0.02,
+    "passed": true,
+    "notes": "",
+    "timestamp": "2026-09-20T15:08:51.446245+00:00"
+  },
+  {
+    "test_id": "TEST-E2E-01",
+    "service_key": "09_end_to_end_lifecycle",
+    "service_name": "End-to-End Lifecycle",
+    "title": "Full Student Lifecycle (Register -> Enroll -> Upload PDF -> Summary/Audio -> Quiz -> Timetable -> Proactive -> Intervention)",
+    "endpoint": "tests/integration/test_veritas_pilot_e2e.py",
+    "method": "INTEGRATION_TEST",
+    "curl": "python -m pytest tests/integration/test_veritas_pilot_e2e.py -v",
+    "payload_sent": {
+      "stages": [
+        "Seed Catalog",
+        "Audit 100% Readiness",
+        "Student Enrollment",
+        "PDF/Lecture Ingest",
+        "Today Timeline",
+        "Adaptive Practice Telemetry",
+        "Gap Resolution",
+        "Lecturer Cohort Analytics",
+        "Audit Log Trail"
+      ]
+    },
+    "response_received": {
+      "exit_code": 0,
+      "summary": "Complete 9-stage pilot contract verified",
+      "log": "ritas_pilot_e2e.py::test_veritas_pilot_adaptive_practice_and_gap_resolution PASSED [ 71%]\ntests/integration/test_veritas_pilot_e2e.py::test_veritas_pilot_lecturer_dashboard_and_intervention PASSED [ 85%]\ntests/integration/test_veritas_pilot_e2e.py::test_veritas_pilot_administration_and_cost_intelligence PASSED [100%]\n\n============================== 7 passed in 1.25s =============================="
+    },
+    "status_code": 200,
+    "duration_ms": 2039.56,
+    "passed": true,
+    "notes": "",
+    "timestamp": "2026-09-20T15:08:53.485863+00:00"
+  }
+]
