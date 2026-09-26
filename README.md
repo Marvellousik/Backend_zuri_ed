@@ -1,6 +1,45 @@
 # Zuri — AI-Powered Learning Platform
 
-A microservices-based learning platform with 6 Go services, 5 Python AI services, PostgreSQL, Redis, and MinIO.
+A polyglot microservices platform powered by Go 1.24, FastAPI, PostgreSQL (pgvector), Redis 7, MinIO, and OpenRouter AI.
+
+---
+
+## 🚀 Quick Start — Start the Full Backend
+
+To start all 11 microservices, databases, storage engines, and caches with a single command, run the included PowerShell startup script from the project root:
+
+```powershell
+.\start_backend.ps1
+```
+
+### What This Does:
+1. **Verifies Docker**: Checks that Docker Desktop is active and ready.
+2. **Loads Environment**: Automatically ensures `infra\.env` is present (copying from `infra\.env.example` if needed).
+3. **Builds & Launches Containers**: Spawns all 11 services in detached mode:
+   - **PostgreSQL 15** (`pgvector`) on `:5432`
+   - **Redis 7** on `:6379`
+   - **MinIO Object Storage** on `:9000` (Console on `:9001`)
+   - **Go API Gateway** on `:8080` (Single external entrypoint)
+   - **5 Internal Go Microservices** (User `:8081`, Content `:8082`, Analytics `:8083`, Notification `:8084`, Sync `:8085`)
+   - **2 Python Microservices** (Academic Context `:8086`, Unified AI Engine `:5005`)
+4. **Health Check Probe**: Automatically polls `http://localhost:8080/health` until all upstreams report healthy.
+5. **Prints Dashboard**: Outputs live access URLs, credentials, and management commands.
+
+### Useful Management Commands
+| Action | Command |
+| :--- | :--- |
+| **Start / Resume Stack** | `.\start_backend.ps1` |
+| **Rebuild Images After Code Changes** | `.\start_backend.ps1 -Build` |
+| **View Live Container Status** | `.\start_backend.ps1 -Status` |
+| **Follow Container Logs** | `.\start_backend.ps1 -Logs` |
+| **Stop All Containers Cleanly** | `.\start_backend.ps1 -Down` |
+
+### Key Service Access URLs
+- **API Gateway (Public API)**: `http://localhost:8080`
+- **Gateway Health Check**: `http://localhost:8080/health`
+- **MinIO Web Console**: `http://localhost:9001` *(User: `minioadmin` / Pass: `minioadmin_secret`)*
+- **PostgreSQL Connection**: `localhost:5432` *(User: `zuri`, Pass: `zuri_secret`, DB: `zuri`)*
+- **Redis Cache**: `localhost:6379`
 
 ---
 
